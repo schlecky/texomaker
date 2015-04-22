@@ -2,7 +2,9 @@
 #include "tableview.h"
 
 TableView::TableView(QWidget *parent) : QTableView(parent)
-{}
+{
+    setFont(QFont("Calibri", 10));
+}
 
 void TableView::contextMenuEvent(QContextMenuEvent * e)
 {

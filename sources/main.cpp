@@ -12,7 +12,8 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    app.setFont(QFont("Calibri", 13));
+    app.setFont(QFont("Calibri", 10));
+    app.setStyleSheet("* {font-size:10px}");
 
  //   QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));

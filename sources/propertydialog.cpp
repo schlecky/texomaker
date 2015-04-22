@@ -118,11 +118,8 @@ QMap<QString, QString> PropertyDialog::getNewMetaMap()
 void PropertyDialog::on_applyButton_clicked()
 {
 	QMap<QString, QString> newMetaMap = getNewMetaMap();
-	
 	writeChangesToExo(newMetaMap);
-	
 	emit modifWritten();
-	
 	close();
 }
 

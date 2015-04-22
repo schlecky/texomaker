@@ -2,6 +2,7 @@
 #include <QFont>
 #include <QtNetwork>
 #include <QtXml>
+#include <QDebug>
 
 #include "mainwindow.h"
 #include "tableview.h"
@@ -600,9 +601,9 @@ void MainWindow::updateFile()
     if  (!curFilePath.isEmpty())
     {
         //        afficheDialog->curImage=QImage();
-        suppressExo(true);
+        //suppressExo(true);
         files << curFilePath;
-        importObject = new Importer(files,Preferences::p_getUseIso(),&xmlDom,model,viewer,false);
+        importObject = new Importer(files,Preferences::p_getUseIso(),&xmlDom,model,viewer,true);
         connect(importObject,SIGNAL(fileImported(const QString &)),this,SLOT(updateImported(const QString &)));
         importObject->importFiles();
         return;

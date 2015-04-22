@@ -1,5 +1,6 @@
 #include <QtWidgets>
 #include <QProcess>
+#include <QDebug>
 
 #include "importer.h"
 #include "xmldomhandler.h"
@@ -24,56 +25,54 @@ Importer::Importer( QStringList texFiles,bool iso,QDomDocument *doc,ExosModel *m
 
 void Importer::importFiles()
 {
-	
 	QStringList::Iterator it = fileList.begin();	// Itérateur sur la liste des fichiers d'exos
 	// On boucle sur tous les exos
      while(it != fileList.end())
      	{
-     	QString fileBaseName = QFileInfo(*it).baseName() + ".tex";
-     	
+     	QString fileBaseName = QFileInfo(*it).baseName() + ".tex";	
 		int testExist = domHandler->searchExoPath(*it);
-     	if ((testExist==0) ||  (fileUpdate == true)) // L'importation ne se fait que si l'exo n'existe pas déjà ou qu'il s'agit d'un update
+        if ((testExist==0) || (fileUpdate == true)) // L'importation ne se fait que si l'exo n'existe pas déjà ou qu'il s'agit d'un update
 		{
-			
-		// Si l'aperçu existe déjà on le renomme avec "-old"
-		QString pdfFileName = QFileInfo(*it).path() + QDir::separator() + QFileInfo(*it).baseName() + "-preview.pdf";
-		QString pdfFileNameOld = QFileInfo(*it).path() + QDir::separator() + QFileInfo(*it).baseName() + "-preview-old.pdf";
-		if (QFileInfo(pdfFileName).exists()) QFile(pdfFileName).rename(pdfFileNameOld);
-			
-		// Quelques initialisations
-                fileContent.clear();
-		containsMpFiles.clear();
-		metapostFigs=false;
-     	
-		exoMetaDatas = readFileContent(*it);	//  On récupére un tableau associatif contenant le texte  et les métadonnées de l'utilisateur
-		fileContent = exoMetaDatas.value("exoText");		// QString contenant le contenu du fichier
-		exoMetaDatas.remove("exoText");
-		//******* On ajoute quelques métadonnées à exoMetaDatas
-		
-		// Ajout du chemin du fichier
-		exoMetaDatas.insert("filepath",*it);
-			
-		// Ajout de la date et heure
-		QString curDate = date.currentDateTime().toString("dd-MM-yyyy hh:mm");
-		exoMetaDatas.insert("importdate",curDate);
-		
-		newExosList.append(exoMetaDatas);
-			
-		if (!exoMetaDatas.value("metapost").isEmpty()) 
-		{
-			metapostFigs=true;
-			containsMpFiles.append(newExosList.size()-1);
-		}
-			
-		//****************** Fin metadonnées
+            // Si l'aperçu existe déjà on le renomme avec "-old"
+            QString pdfFileName = QFileInfo(*it).path() + QDir::separator() + QFileInfo(*it).baseName() + "-preview.pdf";
+            QString pdfFileNameOld = QFileInfo(*it).path() + QDir::separator() + QFileInfo(*it).baseName() + "-preview-old.pdf";
+            if (QFileInfo(pdfFileName).exists()) QFile(pdfFileName).rename(pdfFileNameOld);
 
-		// Création du fichier .tex à compiler pour créer le preview
-		createLatexFile(fileContent,*it);
-		
-		exoDatas.clear();
-		exoMetaDatas.clear();
-	}
-		else { QMessageBox::warning(this,tr("Warning"),tr("Exercise %1 exists already in the database").arg(fileBaseName)); }
+            // Quelques initialisations
+            fileContent.clear();
+            containsMpFiles.clear();
+            metapostFigs=false;
+
+            exoMetaDatas = readFileContent(*it);	//  On récupére un tableau associatif contenant le texte  et les métadonnées de l'utilisateur
+            fileContent = exoMetaDatas.value("exoText");		// QString contenant le contenu du fichier
+            exoMetaDatas.remove("exoText");
+            //******* On ajoute quelques métadonnées à exoMetaDatas
+
+            // Ajout du chemin du fichier
+            exoMetaDatas.insert("filepath",*it);
+
+            // Ajout de la date et heure
+            QString curDate = date.currentDateTime().toString("dd-MM-yyyy hh:mm");
+            exoMetaDatas.insert("importdate",curDate);
+            newExosList.append(exoMetaDatas);
+
+            if (!exoMetaDatas.value("metapost").isEmpty())
+            {
+                metapostFigs=true;
+                containsMpFiles.append(newExosList.size()-1);
+            }
+
+            //****************** Fin metadonnées
+
+            // Création du fichier .tex à compiler pour créer le preview
+            createLatexFile(fileContent,*it);
+
+            exoDatas.clear();
+            exoMetaDatas.clear();
+        }
+        else {
+            QMessageBox::warning(this,tr("Warning"),tr("Exercise %1 exists already in the database").arg(fileBaseName));
+        }
 		++it;
      }
 	
