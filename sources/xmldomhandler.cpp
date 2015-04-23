@@ -110,6 +110,34 @@ void XmlDomHandler::writeExoDom(QMap<QString,QString> datas)
     saveInXml();
 }
 
+
+void XmlDomHandler::updateExo(QMap<QString,QString> datas)
+{
+    QDomNodeList pathDomList = doc->elementsByTagName("filepath");
+
+    for (int i = 0; i < pathDomList.length(); ++i){
+        QDomNode item = pathDomList.item(i);
+        QString curPath = item.toElement().text();
+        if (curPath == datas.value("filepath")){
+                QDomNode nodeToUpdate = item.parentNode();
+                int id = nodeToUpdate.toElement().attribute("Id").toInt();
+                QDomNode newNode = createNode(datas,id);
+                nodeToUpdate = newNode;
+                /*
+                for (int i = 0;i<Preferences::p_getMetaSize();i++){
+                    QDomNode e = curElement.firstChild();
+                    QString eTag = curElement.toElement().tagName();
+                    QString eValue = e.toText().data();
+                    if (eValue != datas.value(eTag)) e.setNodeValue(datas.value(eTag));
+                    curElement = curElement.nextSibling();
+                }
+                */
+            }
+        }
+
+        saveInXml();
+}
+
 void XmlDomHandler::removeSettings()
 {
     QDomElement root = doc->documentElement();
@@ -416,30 +444,4 @@ QStringList XmlDomHandler::checkXmlIntegrity()
 	return exoPbList;
 }
 
-void XmlDomHandler::updateExo(QMap<QString,QString> datas)
-{
-	QDomNodeList pathDomList = doc->elementsByTagName("filepath");
-	
-    for (int i = 0; i < pathDomList.length(); ++i)
-			{
-				QDomNode item = pathDomList.item(i);
-				QString curPath = item.toElement().text();
-				if (curPath == datas.value("filepath"))
-					{
-						
-						QDomNode nodeToUpdate = item.parentNode();
-						QDomNode curElement = nodeToUpdate.firstChild();
-						for (int i = 0;i<Preferences::p_getMetaSize();i++)
-							{  
-								QDomNode e = curElement.firstChild();
-								QString eTag = curElement.toElement().tagName();
-								QString eValue = e.toText().data();
-								if (eValue != datas.value(eTag)) e.setNodeValue(datas.value(eTag));
-								curElement = curElement.nextSibling();
-							}
-						
-					}
-			}
 
-        saveInXml();
-}

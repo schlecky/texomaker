@@ -149,7 +149,6 @@ void MainWindow::createAffiche()
 void MainWindow::createLayout()
 {
     exosTableView = new TableView(this);
-    exosTableView->setFont(QFont("Calibri", 12));
     connect(
         exosTableView->horizontalHeader(),
         SIGNAL(sectionResized(int, int, int)),
@@ -258,6 +257,12 @@ void MainWindow::createActions()
     aboutQtAct = new QAction(tr("About &Qt"), this);
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+
+    copyFilepathAct = new QAction(tr("Copy file name"), this);
+    copyFilepathAct->setStatusTip(tr("Copy file name of current exercise"));
+    copyFilepathAct->setShortcut(QKeySequence(tr("Ctrl+C")));
+    copyFilepathAct->setShortcutContext(Qt::ApplicationShortcut);
+    connect(copyFilepathAct, SIGNAL(triggered()), this, SLOT(copyFileName()));
 }
 
 
@@ -281,12 +286,16 @@ void MainWindow::createMenus()
     toolMenu->addAction(editExoAct);
     menuBar()->addSeparator();
     toolMenu->addAction(createSheetAct);
+    fileMenu->addAction(copyFilepathAct);
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
 
     helpMenu->addAction(manualAct);
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
+
+    contextMenu = new QMenu(this);
+    contextMenu->addAction(copyFilepathAct);
 }
 
 void MainWindow::createToolBars()
@@ -343,6 +352,8 @@ void MainWindow::createModelView()
     exosTableView->horizontalHeader()->setSortIndicatorShown(true);
     exosTableView->horizontalHeader()->setStretchLastSection (true);
 
+    exosTableView->setContextMenuPolicy(Qt::CustomContextMenu);
+
     filterModel->setSortCaseSensitivity ( Qt::CaseInsensitive );
     filterModel->setSortLocaleAware ( true);
     filterModel->setFilterKeyColumn(-1);
@@ -369,6 +380,7 @@ void MainWindow::createModelView()
 
     connect(selectionModel,SIGNAL(currentRowChanged(const QModelIndex &,const QModelIndex &)),this,SLOT(activateExoView()));
     connect(exosTableView,SIGNAL(clicked(const QModelIndex &)),this,SLOT(activateExoView()));
+    connect(exosTableView,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(tvContextMenu(QPoint)));
 
     setWindowTitle(QString(tr("Database name : %1").arg(QFileInfo(Preferences::p_getDbfile()).baseName())));
 
@@ -376,10 +388,25 @@ void MainWindow::createModelView()
     activateExoView();
 }
 
+void MainWindow::tvContextMenu(QPoint pos){
+    //contextMenuItemIndex = exosTableView->indexAt(pos);
+    contextMenu->exec(exosTableView->mapToGlobal(pos));
+}
+
+void MainWindow::copyFileName(){
+    //QModelIndex fileIndex = filterModel->index(contextMenuItemIndex.row(),3,QModelIndex());
+    QModelIndex fileIndex = filterModel->index(exosTableView->currentIndex().row(),3,QModelIndex());
+    QString filename = fileIndex.data().toString();
+    QStringList list = filename.split("/");
+    filename = "\\input{\\exopath/"+list[list.size()-2]+"/"+list[list.size()-1]+"}";
+    QApplication::clipboard()->setText(filename,QClipboard::Clipboard);
+    //qDebug()<<filename;
+}
+
 void MainWindow::updateStatusBar()
 {
     int nbExo = model->rowCount(QModelIndex());
-//    QMessageBox::warning(this, QObject::tr("Warning"),QObject::tr("%1").arg(nbExo));
+//  QMessageBox::warning(this, QObject::tr("Warning"),QObject::tr("%1").arg(nbExo));
     QString statusMsg = QString(tr("%1 exercices dans la base").arg(nbExo));
     statusLabel->setText(statusMsg);
 }

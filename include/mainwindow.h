@@ -144,6 +144,12 @@ private slots:
 
     void updateReplyFinished(QNetworkReply* reply);
 
+    //! Menu contextuel du tableau d'exercices
+    void tvContextMenu(QPoint pos);
+
+    //! Copie le nom de fichier de l'exercice cliqué
+    void copyFileName();
+
 
 private:
 
@@ -232,6 +238,7 @@ private:
     QMenu *fileMenu;
     QMenu *toolMenu;
     QMenu *helpMenu;
+    QMenu *contextMenu;
     QToolBar *fileToolBar;
 
     QAction *pdflatexAct;
@@ -252,6 +259,7 @@ private:
     QAction *editExoAct;
     QAction *saveBaseAct;
     QAction *importBaseAct;
+    QAction *copyFilepathAct;
     
     //! Lecture des préférences du programme (taille et positionnement de la fenêtre, ...
     void readSettings();
@@ -307,6 +315,8 @@ private:
     QString latexBinDir;
 
     bool creation;
+
+    //QModelIndex contextMenuItemIndex;
 
 };
 
