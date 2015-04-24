@@ -403,7 +403,6 @@ void MainWindow::copyFileName(){
     QStringList list = filename.split("/");
     filename = "\\input{\\exopath/"+list[list.size()-2]+"/"+list[list.size()-1]+"}";
     QApplication::clipboard()->setText(filename,QClipboard::Clipboard);
-    //qDebug()<<filename;
 }
 
 void MainWindow::updateStatusBar()
@@ -482,8 +481,6 @@ void MainWindow::suppressExo(bool update)
         idList << Preferences::p_getMetaToView().at(filepathColumn);
         nomList << fileIndex.data().toString();
     }
-
-    qDebug()<<idList<<nomList;
     //return;
     // Puis on supprime les exos dans la base et dans le modèle
      for (int i=0;i<exosCount;i++) {
@@ -639,9 +636,6 @@ void MainWindow::updateFile()
 
     if  (!curFilePath.isEmpty())
     {
-        //        afficheDialog->curImage=QImage();
-        //suppressExo(true);
-        qDebug()<<"Updating file : "<<curFilePath;
         files << curFilePath;
         importObject = new Importer(files,Preferences::p_getUseIso(),&xmlDom,model,viewer,true);
         connect(importObject,SIGNAL(fileImported(const QString &)),this,SLOT(updateImported(const QString &)));
