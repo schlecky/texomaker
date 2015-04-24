@@ -351,6 +351,9 @@ void MainWindow::createModelView()
     exosTableView->horizontalHeader()->setSectionsClickable(true);
     exosTableView->horizontalHeader()->setSortIndicatorShown(true);
     exosTableView->horizontalHeader()->setStretchLastSection (true);
+    exosTableView->setColumnWidth(0,200);
+    exosTableView->setWordWrap(false);
+    exosTableView->verticalHeader()->setVisible(false);
 
     exosTableView->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -395,7 +398,7 @@ void MainWindow::tvContextMenu(QPoint pos){
 
 void MainWindow::copyFileName(){
     //QModelIndex fileIndex = filterModel->index(contextMenuItemIndex.row(),3,QModelIndex());
-    QModelIndex fileIndex = filterModel->index(exosTableView->currentIndex().row(),3,QModelIndex());
+    QModelIndex fileIndex = filterModel->index(exosTableView->currentIndex().row(),4,QModelIndex());
     QString filename = fileIndex.data().toString();
     QStringList list = filename.split("/");
     filename = "\\input{\\exopath/"+list[list.size()-2]+"/"+list[list.size()-1]+"}";
@@ -443,6 +446,7 @@ void MainWindow::suppressExo(bool update)
 {
     QModelIndexList curIndexList = selectionModel->selectedRows();
     QModelIndex curIndex;
+    int filepathColumn = findPathCol();
     int curRow;
     int exosCount = curIndexList.count();
 //    QMessageBox::warning(this, QObject::tr("Error"),QObject::tr("selection : %1").arg(exosCount));
@@ -468,19 +472,19 @@ void MainWindow::suppressExo(bool update)
 
     // Fabrication de deux listes contenant l'id et le nom des exos à supprimer.
     for (int i=0;i<exosCount;i++) {
-
         curIndex = curIndexList.at(i);
         curRow = curIndex.row();
         if ((curRow<0)&&(!update)) {
             QMessageBox::warning(this, QObject::tr("Error"),QObject::tr("Please select at least an exercise to remove !"));
             return;
         }
-        QModelIndex fileIndex = filterModel->index(curRow,0,QModelIndex());
-
-        idList << Preferences::p_getMetaToView().at(0);
+        QModelIndex fileIndex = filterModel->index(curRow,filepathColumn,QModelIndex());
+        idList << Preferences::p_getMetaToView().at(filepathColumn);
         nomList << fileIndex.data().toString();
     }
 
+    qDebug()<<idList<<nomList;
+    //return;
     // Puis on supprime les exos dans la base et dans le modèle
      for (int i=0;i<exosCount;i++) {
          fileCars=QStringList();
@@ -489,6 +493,7 @@ void MainWindow::suppressExo(bool update)
         int id = domHandler->removeExoDom(fileCars);
         model->removeRows(id,1,QModelIndex());
         updateStatusBar();
+
         if (model->rowCount(QModelIndex())==0) {
             viewer->loadImageFile(QString());
             return;
@@ -508,12 +513,8 @@ void MainWindow::suppressExo(bool update)
     exosTableView->setFocus();
 }
 
-QString MainWindow::getCurrentPath()
-{
-    QModelIndex curIndex = exosTableView->currentIndex();
-    int curRow = curIndex.row();
 
-    // Recherche de la colonne du header contenant "filepath"
+int MainWindow::findPathCol(){
     int pathCol=0;
     QString header;
 
@@ -522,6 +523,17 @@ QString MainWindow::getCurrentPath()
         header=model->headerData(i,Qt::Horizontal,Qt::DisplayRole).toString();
         if (header=="filepath") pathCol=i;
     }
+    return pathCol;
+}
+
+
+QString MainWindow::getCurrentPath()
+{
+    QModelIndex curIndex = exosTableView->currentIndex();
+    int curRow = curIndex.row();
+
+    // Recherche de la colonne du header contenant "filepath"
+    int pathCol=findPathCol();
 
     QModelIndex fileIndex = filterModel->index(curRow, pathCol, QModelIndex());
     QString curFilePath = fileIndex.data().toString();
@@ -629,6 +641,7 @@ void MainWindow::updateFile()
     {
         //        afficheDialog->curImage=QImage();
         //suppressExo(true);
+        qDebug()<<"Updating file : "<<curFilePath;
         files << curFilePath;
         importObject = new Importer(files,Preferences::p_getUseIso(),&xmlDom,model,viewer,true);
         connect(importObject,SIGNAL(fileImported(const QString &)),this,SLOT(updateImported(const QString &)));

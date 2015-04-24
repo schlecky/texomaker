@@ -221,6 +221,8 @@ private:
     void changeAllXmlPaths(QString xmlFile,QString newPath=QString());
     //! Supprime les noeuds "exo" dans le fichier xml
     void removeExosNode(QString xmlFile);
+    //! Trouve la colonne contenant le filepath
+    int findPathCol();
     
     //! Pointeur sur l'objet de visualisation
     //! Cette vue est gérée suivant le principe Model / View. Le model gérant cette vue est du type \a ExosModel.

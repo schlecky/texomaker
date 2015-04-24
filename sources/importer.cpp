@@ -211,6 +211,7 @@ void Importer::pdfSuccess(const QMap<QString,QString>  * currentFileMap)
 	else 
 	{	
 		domHandler->updateExo(localExoMap);
+        qDebug()<<"Exo updated";
 		localModel->updateModel(localExoMap,true);
                 emit fileImported(currentFile);
 	}

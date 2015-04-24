@@ -120,9 +120,12 @@ void XmlDomHandler::updateExo(QMap<QString,QString> datas)
         QString curPath = item.toElement().text();
         if (curPath == datas.value("filepath")){
                 QDomNode nodeToUpdate = item.parentNode();
+                QDomNode nextNode = nodeToUpdate.toElement().nextSibling();
                 int id = nodeToUpdate.toElement().attribute("Id").toInt();
                 QDomNode newNode = createNode(datas,id);
-                nodeToUpdate = newNode;
+                QDomElement root = doc->documentElement();
+                root.toElement().removeChild(nodeToUpdate);
+                root.toElement().insertBefore(newNode,nextNode);
                 /*
                 for (int i = 0;i<Preferences::p_getMetaSize();i++){
                     QDomNode e = curElement.firstChild();
